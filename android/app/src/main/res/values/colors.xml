@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="background">#FF101418</color>
+    <color name="accent">#FF4FC3F7</color>
+    <color name="joystick_base">#66000000</color>
+    <color name="joystick_base_stroke">#80FFFFFF</color>
+    <color name="joystick_thumb">#CCFFFFFF</color>
+    <color name="status_text">#B3FFFFFF</color>
+</resources>

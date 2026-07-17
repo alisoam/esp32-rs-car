@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background"
+    android:keepScreenOn="true">
+
+    <ImageView
+        android:id="@+id/videoView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="fitCenter"
+        android:contentDescription="@null" />
+
+    <TextView
+        android:id="@+id/statusText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="@string/status_connecting"
+        android:textColor="@color/status_text"
+        android:textSize="16sp" />
+
+    <com.esp32rc.ui.JoystickView
+        android:id="@+id/joystick"
+        android:layout_width="180dp"
+        android:layout_height="180dp"
+        android:layout_gravity="start|bottom"
+        android:layout_marginStart="28dp"
+        android:layout_marginBottom="24dp" />
+
+</FrameLayout>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ESP32 RC Car</string>
+    <string name="status_connecting">Connecting…</string>
+    <string name="status_no_signal">No video signal</string>
+    <string name="hint_ip">IP address</string>
+    <string name="hint_port">Port</string>
+    <string name="btn_connect">Connect</string>
+    <string name="error_invalid_ip">Enter a valid IP address</string>
+    <string name="error_invalid_port">Enter a valid port (1–65535)</string>
+    <string name="error_connect_failed">Could not reach %1$s</string>
+    <string name="status_checking">Checking connection…</string>
+</resources>
