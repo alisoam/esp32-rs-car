@@ -4,6 +4,7 @@ idf_component_register(
         "wifi_ap.c"
         "http_server.c"
         "led_heartbeat.c"
+        "motor_control.c"
     INCLUDE_DIRS
         "."
     REQUIRES
@@ -14,4 +15,5 @@ idf_component_register(
         esp_event
         esp_timer
         esp_driver_gpio
+        esp_driver_ledc
 )

@@ -1,4 +1,5 @@
 #include "http_server.h"
+#include "motor_control.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -79,6 +80,7 @@ static esp_err_t control_handler(httpd_req_t *req)
     }
     motor_left_speed  = l;
     motor_right_speed = r;
+    motor_set(l, r);
 
     ESP_LOGI(TAG, "control: L=%" PRId32 " R=%" PRId32 " s=%llu", l, r, s);
 

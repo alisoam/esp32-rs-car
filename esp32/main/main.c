@@ -7,6 +7,7 @@
 #include "wifi_ap.h"
 #include "http_server.h"
 #include "led_heartbeat.h"
+#include "motor_control.h"
 
 static const char *TAG = "main";
 
@@ -22,6 +23,7 @@ void app_main(void)
     ESP_LOGI(TAG, "ESP32 RC Car firmware starting...");
 
     led_heartbeat_init();
+    motor_control_init();
     wifi_ap_init();
     http_server_start();
 

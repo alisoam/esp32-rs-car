@@ -368,8 +368,8 @@ idf.py -p /dev/ttyUSB0 flash monitor
 4. **[done]** **Android: MotorClient** — sequence-numbered fire-and-forget commands
 5. **[done]** **Python test server** — simulate ESP32 HTTP endpoints for app testing
 6. **[done]** **ESP32: WiFi AP** — get network up, verify connection from phone
-7. **ESP32: Motor control** — `motor_control.c`, test with `/control` from browser (NEXT)
+7. **[done]** **ESP32: Motor control** — `motor_control.c`, test with `/control` from browser
 8. **[done]** **ESP32: HTTP server skeleton** — `/status` + `/control` + `/stream` stubs (seq dedup live)
-9. **ESP32: OV7670 driver** — I2C init, I2S DMA, frame capture
+9. **ESP32: OV7670 driver** — I2C init, I2S DMA, frame capture (NEXT)
 10. **ESP32: JPEG encoder** — integrate, test `/stream` in desktop browser
 11. **End-to-end test** — drive the car via WiFi with video feed
