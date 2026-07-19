@@ -1,9 +1,1 @@
-.venv/
-__pycache__/
-*.pyc
 
-# ESP-IDF build artifacts
-esp32/build/
-esp32/.cache/
-esp32/sdkconfig.old
-esp32/.envrc
