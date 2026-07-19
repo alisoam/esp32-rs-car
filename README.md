@@ -15,9 +15,9 @@ WiFi-controlled RC car with live camera feed. Android app for driving, ESP32 fir
 ### Test server (no hardware needed)
 
 ```bash
-python -m venv .venv && .venv/bin/pip install -r requirements.txt
+python -m venv .venv && .venv/bin/pip install -r test_server/requirements.txt
 source .envrc
-python test_server.py
+python test_server/test_server.py
 ```
 
 ### Android app

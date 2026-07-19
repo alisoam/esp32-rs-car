@@ -11,8 +11,9 @@ app development.
 ```
 esp32-rc-car/
 ├── plan.md                       # Project roadmap — keep in sync with reality
-├── test_server.py                # Python HTTP server → simulates ESP32 endpoints
-├── requirements.txt              # Pillow >=11.0.0 (for test_server.py frame generation)
+├── test_server/
+│   ├── test_server.py            # Python HTTP server → simulates ESP32 endpoints
+│   └── requirements.txt          # Pillow >=11.0.0 (for test_server.py frame generation)
 ├── .envrc                        # direnv → source to activate .venv/
 ├── .gitignore                    # .venv/, __pycache__/, *.pyc
 ├── android/                      # Android app (NOT android-app/)
@@ -32,12 +33,12 @@ esp32-rc-car/
 
 ### Test server (Python)
 ```bash
-# first time: python -m venv .venv && .venv/bin/pip install -r requirements.txt
+# first time: python -m venv .venv && .venv/bin/pip install -r test_server/requirements.txt
 # then:
 source .envrc                      # direnv auto-activates .venv
-python test_server.py              # binds 0.0.0.0:8080
+python test_server/test_server.py  # binds 0.0.0.0:8080
 # custom port:
-python test_server.py --port 9000
+python test_server/test_server.py --port 9000
 ```
 
 The server generates synthetic 176×144 JPEG frames at 15 FPS with motor bar visualizations.
@@ -99,5 +100,5 @@ When implementing firmware:
 1. Check `plan.md` — it describes both what's built and what's next. Update it if you change  
    the architecture or add/remove components.
 2. The Android app builds with `./gradlew assembleDebug` from the `android/` directory.
-3. Test against `test_server.py` if real hardware isn't available.
+3. Test against `test_server/test_server.py` if real hardware isn't available.
 4. No CI/CD pipeline yet — manual testing only.

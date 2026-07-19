@@ -49,9 +49,10 @@
 ```
 esp32-rc-car/
 ├── plan.md
-├── .envrc                           # direnv: activates .venv
-├── requirements.txt                 # Pillow (for test_server.py)
-├── test_server.py                   # Python HTTP server simulating ESP32 firmware
+├── test_server/
+│   ├── test_server.py           # Python HTTP server simulating ESP32 firmware
+│   └── requirements.txt         # Pillow (for test_server.py)
+├── .envrc                       # direnv: activates .venv
 │
 ├── esp32/                          # ESP-IDF v5.x project (IN PROGRESS)
 │   ├── CMakeLists.txt
@@ -105,10 +106,10 @@ esp32-rc-car/
 
 ## 0. Test Server (Python)
 
-`test_server.py` is a Python HTTP server that simulates the ESP32 firmware — enables testing the Android app without hardware.
+`test_server/test_server.py` is a Python HTTP server that simulates the ESP32 firmware — enables testing the Android app without hardware.
 
-- **Run**: `./.venv/bin/python test_server.py` (binds `0.0.0.0:8080` by default)
-- **Dependency**: `requirements.txt` → Pillow >=11.0.0 (generates synthetic 176×144 JPEG frames)
+- **Run**: `./.venv/bin/python test_server/test_server.py` (binds `0.0.0.0:8080` by default)
+- **Dependency**: `test_server/requirements.txt` → Pillow >=11.0.0 (generates synthetic 176×144 JPEG frames)
 - **Virtualenv**: `.envrc` activates `.venv/` via direnv
 
 ### Endpoints
@@ -122,10 +123,10 @@ esp32-rc-car/
 ### CLI
 ```bash
 # start the test server
-./.venv/bin/python test_server.py
+./.venv/bin/python test_server/test_server.py
 
 # custom port
-./.venv/bin/python test_server.py --port 9000
+./.venv/bin/python test_server/test_server.py --port 9000
 ```
 
 ---
@@ -199,7 +200,7 @@ esp32-rc-car/
 
 #### `MotorClient` — OkHttp, fire-and-forget
 - Sends `GET /control?l=<L>&r=<R>&s=<seq>` with incrementing sequence numbers (`AtomicLong`)
-- Sequence numbers allow the server (real ESP32 or test_server.py) to drop stale/delayed commands
+- Sequence numbers allow the server (real ESP32 or test_server/test_server.py) to drop stale/delayed commands
 - 1s connect/read timeouts
 - `shutdown()` cleans up dispatcher executor + connection pool
 
@@ -350,7 +351,7 @@ idf.py -p /dev/ttyUSB0 flash monitor
 - [ ] `/control?l=0&r=0&s=2` stops motors
 - [ ] Sequence number dedup works (stale commands dropped)
 - [ ] Watchdog stops motors when no commands sent for 500ms
-- [x] Android app connects to `192.168.4.1:80` (verified with test_server.py)
+- [x] Android app connects to `192.168.4.1:80` (verified with test_server/test_server.py)
 - [x] MJPEG stream displays in ImageView
 - [x] Joystick drag sends correct `l`/`r` values with sequence numbers
 - [x] Joystick release sends `l=0&r=0`
