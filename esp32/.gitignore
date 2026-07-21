@@ -3,3 +3,4 @@ build/
 .cache/
 sdkconfig.old
 .envrc
+managed_components/

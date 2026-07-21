@@ -28,4 +28,8 @@ void app_main(void)
     http_server_start();
 
     ESP_LOGI(TAG, "Firmware ready");
+
+    while (1) {
+        vTaskDelay(pdMS_TO_TICKS(1000));
+    }
 }

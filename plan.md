@@ -4,7 +4,7 @@
 
 | Component        | Part                                          |
 |------------------|-----------------------------------------------|
-| MCU              | ESP32 Dev Board                               |
+| MCU              | ESP32-S3 Dev Board                            |
 | Camera           | OV7670 (raw parallel, no FIFO)                |
 | Motor Driver     | MX1508 dual H-bridge                          |
 | Motors           | 2× DC motors, differential drive (tank steer) |
@@ -22,7 +22,7 @@
 │  │ Dual-Axis Joystick     │──┼─HTTP /control────►│              │                 │
 │  │ (custom Canvas view)   │  │ ?l=±255&r=±255    │  ┌───────────▼──────────────┐  │
 │  ├────────────────────────┤  │ &s=<seq>          │  │ Frame Buffer (mutex)     │  │
-│  │ Connection Screen      │  │                   │  │ JPEG Encoder             │  │
+│  │ Connection Screen      │  │                   │  │ JPEG Encoder (NEW_JPEG)   │  │
 │  │ (IP entry + connect)   │  │                   │  └───────────▲──────────────┘  │
 │  └────────────────────────┘  │                   │              │                 │
 │                              │                   │  ┌───────────┴──────────────┐  │
@@ -234,10 +234,10 @@ esp32-rc-car/
 | OV7670 VSYNC | 19   | GPIO INT        | Falling edge → frame start      |
 | OV7670 SIOC  | 22   | I2C SCL         | SCCB clock                      |
 | OV7670 SIOD  | 23   | I2C SDA         | SCCB data                       |
-| MX1508 IN1   | 32   | LEDC ch 0       | Left motor forward              |
-| MX1508 IN2   | 33   | LEDC ch 1       | Left motor reverse              |
-| MX1508 IN3   | 25   | LEDC ch 2       | Right motor forward             |
-| MX1508 IN4   | 26   | LEDC ch 3       | Right motor reverse             |
+| MX1508 IN1   | 4    | LEDC ch 0       | Left motor forward              |
+| MX1508 IN2   | 5    | LEDC ch 1       | Left motor reverse              |
+| MX1508 IN3   | 6    | LEDC ch 2       | Right motor forward             |
+| MX1508 IN4   | 7    | LEDC ch 3       | Right motor reverse             |
 
 ### 2.2 Firmware Modules
 
@@ -277,12 +277,14 @@ esp32-rc-car/
 - Mutex `frame_mutex` protects buffer swap
 - Output: raw RGB565 byte array, 176×144×2 = 50688 bytes per frame
 
-#### `jpeg_encoder.c` — RGB565 → JPEG
-- Takes raw RGB565 buffer, outputs JPEG byte array + length
-- Uses `esp_jpeg` component (TJpgDec-based) or a lightweight software JPEG encoder
-- Quality: ~70 (trade off size vs speed)
-- Target: ~5-10 KB per frame
-- Encoding time: ~30-50ms on ESP32 at 240 MHz for QCIF
+#### `jpeg_encoder.c` — RGB888 → JPEG (ESP_NEW_JPEG v1.0.2)
+- Uses [ESP_NEW_JPEG](https://components.espressif.com/components/espressif/esp_new_jpeg) — SIMD-accelerated codec with ASM optimization on ESP32-S3
+- Dual-core mode: main encoding on core 0, entropy coding on core 1 (~1.5× speedup)
+- Input: 16-byte-aligned RGB888 (via `jpeg_calloc_align` for S3 DMA requirements)
+- API: `jpeg_encoder_create()`, `jpeg_encoder_encode_rgb888()`, `jpeg_encoder_encode_rgb565()`, `jpeg_encoder_destroy()`
+- Legacy one-shot wrapper `jpeg_encode_rgb888()` for backward compatibility
+- Quality: 1–100 (default 70)
+- Encode time: ~10–20 ms for QCIF 176×144 (significantly faster than naïve SW DCT)
 
 #### `http_server.c` — HTTP Server
 - Uses `esp_http_server` (built-in, no external dependency)
@@ -323,8 +325,7 @@ esp32-rc-car/
 ### 2.3 Build & Flash
 ```bash
 cd esp32
-idf.py set-target esp32
-idf.py menuconfig   # verify flash size, CPU freq 240 MHz
+idf.py set-target esp32s3
 idf.py build
 idf.py -p /dev/ttyUSB0 flash monitor
 ```
@@ -334,7 +335,7 @@ idf.py -p /dev/ttyUSB0 flash monitor
 | Metric              | Target     |
 |--------------------|------------|
 | Frame capture rate | 15-20 FPS  |
-| JPEG encode time   | 30-50 ms   |
+| JPEG encode time   | 10–20 ms   |
 | Stream frame rate  | 8-15 FPS   |
 | Motor response     | <100ms     |
 | Control latency    | <50ms      |
@@ -372,5 +373,5 @@ idf.py -p /dev/ttyUSB0 flash monitor
 7. **[done]** **ESP32: Motor control** — `motor_control.c`, test with `/control` from browser
 8. **[done]** **ESP32: HTTP server skeleton** — `/status` + `/control` + `/stream` stubs (seq dedup live)
 9. **ESP32: OV7670 driver** — I2C init, I2S DMA, frame capture (NEXT)
-10. **ESP32: JPEG encoder** — integrate, test `/stream` in desktop browser
+10. **[done]** **ESP32: HW JPEG encoder** — integrated with ESP32-S3 hardware peripheral, `/stream` delivers MJPEG to app and desktop browser
 11. **End-to-end test** — drive the car via WiFi with video feed

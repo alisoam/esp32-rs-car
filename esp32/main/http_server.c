@@ -1,5 +1,6 @@
 #include "http_server.h"
 #include "motor_control.h"
+#include "camera_frame.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -91,20 +92,29 @@ static esp_err_t control_handler(httpd_req_t *req)
 static void stream_task(void *arg)
 {
     httpd_req_t *req = (httpd_req_t *)arg;
+    int frame_count = 0;
 
-    const char *heartbeat =
-        "--" STREAM_BOUNDARY "\r\n"
-        "Content-Type: image/jpeg\r\n"
-        "Content-Length: 0\r\n"
-        "\r\n";
-    size_t hb_len = strlen(heartbeat);
+    char header_buf[256];
 
     while (1) {
-        vTaskDelay(pdMS_TO_TICKS(100));
-        esp_err_t err = httpd_resp_send_chunk(req, heartbeat, hb_len);
-        if (err != ESP_OK) {
-            break;
-        }
+        camera_frame_t frame = camera_frame_generate(
+            motor_left_speed, motor_right_speed, frame_count);
+
+        int header_len = snprintf(header_buf, sizeof(header_buf),
+            "--" STREAM_BOUNDARY "\r\n"
+            "Content-Type: image/jpeg\r\n"
+            "Content-Length: %d\r\n"
+            "\r\n",
+            (int)frame.size);
+
+        esp_err_t err = httpd_resp_send_chunk(req, header_buf, header_len);
+        if (err != ESP_OK) break;
+
+        err = httpd_resp_send_chunk(req, (const char *)frame.data, frame.size);
+        if (err != ESP_OK) break;
+
+        frame_count++;
+        vTaskDelay(pdMS_TO_TICKS(66));
     }
 
     httpd_req_async_handler_complete(req);
@@ -132,7 +142,7 @@ static esp_err_t stream_handler(httpd_req_t *req)
         return ESP_FAIL;
     }
 
-    BaseType_t ret = xTaskCreate(stream_task, "stream", 4096, async_req, 5, NULL);
+    BaseType_t ret = xTaskCreate(stream_task, "stream", 16384, async_req, 5, NULL);
     if (ret != pdPASS) {
         ESP_LOGE(TAG, "failed to create stream task");
         stream_clients--;
@@ -164,6 +174,7 @@ static const httpd_uri_t uri_handlers[] = {
 void http_server_start(void)
 {
     start_time_us = esp_timer_get_time();
+    camera_frame_init();
 
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
     config.server_port      = 80;

@@ -3,6 +3,8 @@ idf_component_register(
         "main.c"
         "wifi_ap.c"
         "http_server.c"
+        "camera_frame.c"
+        "jpeg_encoder.c"
         "led_heartbeat.c"
         "motor_control.c"
     INCLUDE_DIRS
